@@ -39,19 +39,20 @@ def send_report(
 ) -> dict:
     recipients = [recipient] if recipient else RECIPIENT_EMAILS
 
-    yag_err = None
-    try:
-        _send_via_yagmail(date_str, html_content, recipients)
-        return {"ok": True, "sent": recipients}
-    except Exception as e:
-        yag_err = e
-
+    # ── 主路径：标准 MIMEMultipart，QQ 邮箱兼容性最佳 ───────
     try:
         msg = _build_message(date_str, html_content)
         _send_via_smtp(msg, recipients)
         return {"ok": True, "sent": recipients}
     except Exception as smtp_err:
-        return {"ok": False, "error": f"yagmail: {yag_err} | smtp: {smtp_err}"}
+        pass
+
+    # ── 备选：yagmail（部分 SMTP 受限环境）───────────────────
+    try:
+        _send_via_yagmail(date_str, html_content, recipients)
+        return {"ok": True, "sent": recipients, "via": "yagmail"}
+    except Exception as yag_err:
+        return {"ok": False, "error": f"smtp: {smtp_err} | yagmail: {yag_err}"}
 
 
 # ─────────────────────────────────────────────────────────────
