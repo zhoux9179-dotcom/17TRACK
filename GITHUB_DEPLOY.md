@@ -73,6 +73,7 @@ git push -u origin main
 - **推送失败**：检查是否已 `git remote add origin`、是否已登录 GitHub。
 - **Actions 失败**：看 **Actions** 里红色日志；多数是 `DEEPSEEK_API_KEY` 未填或错误。
 - **邮件发不出**：检查 `SENDER_EMAIL` / `SENDER_PASSWORD`；Gmail 需开启两步验证并生成 **应用专用密码**。
+- **打开看板链接却是「项目说明 / README」、邮件里也是说明文档**：说明 **GitHub Pages 发布源选错了**。必须选 **`gh-pages` 分支**、目录 **`/(root)`**，不能选 **`main` 根目录**（`main` 上没有 `index.html` 日报，GitHub 会默认展示 README）。路径：**Settings → Pages → Branch → `gh-pages` / (root)**，保存后等 1～5 分钟 CDN 刷新。
 
 ---
 
