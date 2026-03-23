@@ -1,5 +1,8 @@
 # 跨境热点日报：每天 UTC 0:30 运行（北京时间约 8:30）
 # 也可在 Actions 页手动点「Run workflow」
+#
+# 在线看板：请在仓库 Settings → Pages → Branch 选 gh-pages / (root)
+# 地址：https://zhoux9179-dotcom.github.io/17TRACK/
 
 name: 跨境热点日报
 
@@ -7,6 +10,9 @@ on:
   schedule:
     - cron: "30 0 * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -31,3 +37,21 @@ jobs:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
         run: python 主程序.py --no-open --email
+
+      - name: Prepare GitHub Pages (index.html)
+        run: |
+          mkdir -p _site
+          LATEST=$(ls -t 输出/热点日报_*.html 2>/dev/null | head -n1)
+          if [ -n "$LATEST" ]; then
+            cp "$LATEST" _site/index.html
+            echo "Using $LATEST"
+          else
+            echo '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>跨境热点日报</title></head><body><p>暂无日报，请等待定时任务或手动运行 Actions。</p></body></html>' > _site/index.html
+          fi
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
